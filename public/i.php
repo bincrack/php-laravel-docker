@@ -1,6 +1,4 @@
 <?php
-header('content-disposition: inline; filename=RSS-0.xml');
-header('content-type: application/xml; charset=utf-8; filename=RSS-0.xml');
 
 $err_msg = <<<EOT
 <?xml version="1.0" encoding="utf-8"?>
@@ -58,8 +56,13 @@ if (curl_errno($ch)) {
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $body = substr($response, $header_size);  
         if ($path == '/rss.html') {
+            header('content-disposition: inline; filename=RSS-0.xml');
+            header('content-type: application/xml; charset=utf-8; filename=RSS-0.xml');
+
             echo to_rss($body);
         } else {
+            header('content-type: text/html; charset=utf-8');
+
             echo $body;
         }
     } else {
