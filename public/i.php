@@ -35,7 +35,7 @@ curl_setopt($ch, CURLOPT_HEADER, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_NOBODY, false);
 curl_setopt($ch, CURLOPT_TIMEOUT, 30); // 设置超时时间  
-curl_setopt($ch, CURLOPT_PROXY, 'http://127.0.0.1:7890'); // 设置代理服务器
+// curl_setopt($ch, CURLOPT_PROXY, 'http://127.0.0.1:7890'); // 设置代理服务器
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 $response = curl_exec($ch);
