@@ -2,6 +2,9 @@
 echo "Running composer"
 composer install --no-dev --working-dir=/var/www/html
 
+pwd
+ls -lah /var/www/html/public
+
 echo "Caching config..."
 php artisan config:cache
 
