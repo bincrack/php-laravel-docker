@@ -1,4 +1,6 @@
 <?php
+header('content-disposition: inline; filename=RSS-0.xml');
+header('content-type: application/xml; charset=utf-8; filename=RSS-0.xml');
 
 $err_msg = <<<EOT
 <?xml version="1.0" encoding="utf-8"?>
@@ -23,10 +25,19 @@ $headers = [
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',  
 ];  
 
+
+function to_rss($body) { 
+    $xml = simplexml_load_string($body);
+    // var_dump($xml->channel->item);
+    foreach ($xml->channel->item as $k => $v) {
+        $v->link = str_replace("http://cn.nikkei.com", "https://venkar.onrender.com/i.php?path=", $v->link);;
+        // $v->guid = '';
+    }
+    return $xml->asXML();
+}
+
 $path = isset( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : '/rss.html';
 $url = 'https://cn.nikkei.com/' . $path; 
-// $url = 'https://cn.nikkei.com/rss.html';
-// $url = 'https://blog.csdn.net/wuxiaobingandbob/article/details/70314102';
 $ch = curl_init();  
 
 curl_setopt($ch, CURLOPT_URL, $url);  
@@ -46,7 +57,11 @@ if (curl_errno($ch)) {
     if ($httpCode == 200) {
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $body = substr($response, $header_size);  
-        echo $body;
+        if ($path == '/rss.html') {
+            echo to_rss($body);
+        } else {
+            echo $body;
+        }
     } else {
         echo sprintf($err_msg, 'RSS源异常: '.$httpCode);
     }
