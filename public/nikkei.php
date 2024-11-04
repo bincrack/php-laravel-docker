@@ -58,7 +58,8 @@ $url = $scheme.'://'.$path;
 var_dump($scheme);
 var_dump($path);
 var_dump($url);
-// exit();
+phpinfo();
+exit();
 $ch = curl_init();  
 
 curl_setopt($ch, CURLOPT_URL, $url);  
