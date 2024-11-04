@@ -51,10 +51,14 @@ function to_rss($body) {
     return $xml->asXML();
 }
 
-$path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'https://www.baidu.com/';
-$url = $path;
+$scheme = isset( $_REQUEST[ 'scheme' ] ) && !empty( $_REQUEST[ 'scheme' ] ) ? $_REQUEST[ 'scheme' ] : 'https';
+$path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'www.baidu.com';
+$url = $scheme.'://'.$path;
 // $url = 'https://cn.nikkei.com/rss.html'; 
+var_dump($scheme);
+var_dump($path);
 var_dump($url);
+// exit();
 $ch = curl_init();  
 
 curl_setopt($ch, CURLOPT_URL, $url);  
