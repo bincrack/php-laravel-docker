@@ -16,7 +16,7 @@ foreach ($_SERVER as $key => $value) {
         }
     }
 }
-// var_dump($headers);
+var_dump($headers);
 // phpinfo();
 // exit();
 
@@ -54,7 +54,7 @@ function to_rss($body) {
 $path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'https://www.baidu.com/';
 $url = $path;
 // $url = 'https://cn.nikkei.com/rss.html'; 
-// var_dump($url);
+var_dump($url);
 $ch = curl_init();  
 
 curl_setopt($ch, CURLOPT_URL, $url);  
