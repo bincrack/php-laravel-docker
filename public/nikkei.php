@@ -65,7 +65,6 @@ if (curl_errno($ch)) {
         echo sprintf("请求失败, 响应码: %s", $httpCode);
     }
 }
-/*
 var_dump(array(
     "headers_req" => $headers_req,
     "headers_res" => $headers_res,
@@ -74,5 +73,6 @@ var_dump(array(
     "url" => $url
 ));
 phpinfo();
+/*
 */
 ?>
