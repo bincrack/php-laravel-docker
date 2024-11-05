@@ -1,5 +1,5 @@
 <?php
-$headers_ignore = array('host', 'connection');
+$headers_ignore = array('host', 'connection', 'x-forwarded-for', 'true-client-ip', 'cf-connecting-ip');
 $headers_req = [  
     'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',  
     'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -27,6 +27,7 @@ curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HEADER, true);  
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($ch, CURLOPT_NOBODY, false);
 curl_setopt($ch, CURLOPT_TIMEOUT, 10); // 设置超时时间  
 // curl_setopt($ch, CURLOPT_PROXY, 'http://127.0.0.1:7890'); // 设置代理服务器
