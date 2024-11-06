@@ -16,6 +16,7 @@ foreach ($_SERVER as $key => $value) {
     }
 }
 
+$debug = isset( $_REQUEST[ 'debug' ] ) && !empty( $_REQUEST[ 'debug' ] ) ? $_REQUEST[ 'debug' ] : '0';
 $scheme = isset( $_REQUEST[ 'scheme' ] ) && !empty( $_REQUEST[ 'scheme' ] ) ? $_REQUEST[ 'scheme' ] : 'https';
 $path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'www.baidu.com';
 // $scheme = 'https';
@@ -81,6 +82,7 @@ $page_info = array(
     "url" => $url,
     "http_code" => $http_code
 );
+if ($debug == '1') {
 ?>
 <style type="text/css">
     .center td.e, .center td.v, .center pre {
@@ -89,14 +91,15 @@ $page_info = array(
 </style>
 <div class="center">
 <table>
-	<?php	foreach ( $page_info as $k => $v ) { ?>
+<?php	foreach ( $page_info as $k => $v ) { ?>
     <tr>
         <td class="e"><?=$k ?> </td>
         <td class="v"><pre><?=var_export($v, true) ?></pre></td>
     </tr>
-	<?php	} ?>
+<?php	} ?>
 </table>
 </div>
 <?php
-phpinfo();
+    phpinfo();
+}
 ?>
