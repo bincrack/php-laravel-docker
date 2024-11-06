@@ -1,9 +1,10 @@
 <?php
 $headers_ignore = array('host', 'connection', 'x-forwarded-for', 'true-client-ip', 'cf-connecting-ip');
-$headers_req = [  
+$headers_req = array();
+$headers_def_req = array(
     'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',  
     'accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-];
+);
 $headers_res = array();
 foreach ($_SERVER as $key => $value) {
     if (substr($key, 0, 5) === 'HTTP_') {
@@ -11,20 +12,26 @@ foreach ($_SERVER as $key => $value) {
         $key = str_replace('_', '-', $key);
         $key = strtolower($key);
         if (!in_array($key, $headers_ignore)) {
-            $headers_req[$key] = $value;
+            $headers_def_req[$key] = $value;
         }
     }
+}
+foreach ($headers_def_req as $key => $value) {
+    array_push($headers_req, $key.': '.$value);
 }
 
 $debug = isset( $_REQUEST[ 'debug' ] ) && !empty( $_REQUEST[ 'debug' ] ) ? $_REQUEST[ 'debug' ] : '0';
 $scheme = isset( $_REQUEST[ 'scheme' ] ) && !empty( $_REQUEST[ 'scheme' ] ) ? $_REQUEST[ 'scheme' ] : 'https';
 $path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'www.baidu.com';
+// $debug = '1';
 // $scheme = 'https';
 // $path = 'dash.cloudflare.com';
 $url = $scheme."://".$path;
 $ch = curl_init();
 
 curl_setopt($ch, CURLOPT_URL, $url);  
+curl_setopt($ch, CURLOPT_FAILONERROR, true);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HEADER, true);  
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
