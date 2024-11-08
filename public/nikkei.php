@@ -19,39 +19,56 @@ foreach ($_SERVER as $key => $value) {
 foreach ($headers_def_req as $key => $value) {
     array_push($headers_req, $key.': '.$value);
 }
-$link_url = null;
 $link_urls = array();
 function to_tag($tag, $tag_name) {
-    global $link_urls;
+    global $link_urls, $scheme, $base_url;
     $tag_val = $tag->getAttribute($tag_name);
     if (empty($tag_val)) {
         return;
     }
     if (strpos($tag_val, 'http://') === 0) {
-        $tag->setAttribute($tag_name, ''.substr($tag_val, 7));
+        $tag->setAttribute($tag_name, '/nikkei/http/'.substr($tag_val, 7));
     } elseif (strpos($tag_val, 'https://') === 0) {
-        $tag->setAttribute($tag_name, ''.substr($tag_val, 8));
+        $tag->setAttribute($tag_name, '/nikkei/https/'.substr($tag_val, 8));
     } elseif (strpos($tag_val, '//') === 0) {
-        $tag->setAttribute($tag_name, ''.substr($tag_val, 2));
+        $tag->setAttribute($tag_name, '/nikkei/'.$scheme.'/'.substr($tag_val, 2));
     } elseif (strpos($tag_val, '/') === 0) {
-        $tag->setAttribute($tag_name, ''.substr($tag_val, 1));
+        $tag->setAttribute($tag_name, '/nikkei/'.$scheme.'/'.$base_url.'/'.substr($tag_val, 1));
     }
     array_push($link_urls, array($tag->nodeName, $tag->getAttribute($tag_name), $tag_val));
 }
+
+$debug = isset( $_REQUEST[ 'debug' ] ) && !empty( $_REQUEST[ 'debug' ] ) ? $_REQUEST[ 'debug' ] : '0';
+$scheme = isset( $_REQUEST[ 'scheme' ] ) && !empty( $_REQUEST[ 'scheme' ] ) ? $_REQUEST[ 'scheme' ] : 'https';
+$path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'www.baidu.com';
+// $debug = '1';
+// $scheme = 'https';
+// $path = 'dash.cloudflare.com';
+$url = $scheme."://".$path;
+$url_parse = parse_url($url);
+$base_url = $url_parse['host'].(empty($url_parse['port']) ? "" : ":".$url_parse['port']);
 $hook_script = <<<EOT
 function function_hook(func, obj, arg) {
+    var scheme = "$scheme";
+    var base_url = "$base_url";
     var url = null;
     var tag = arg[0];
     if (typeof tag === 'object') {
         if (tag.tagName === 'SCRIPT') {
             url = tag.src;
+            if (tag.src.indexOf('http://') === 0) {
+                tag.src = '/nikkei/http/' + tag.src.substr(7);
+            }
             if (tag.src.indexOf('https://') === 0) {
-                tag.src = tag.src.substr(8);
+                tag.src = '/nikkei/https/' + tag.src.substr(8);
             }
         } else if (tag.tagName === 'LINK') {
             url = tag.href;
+            if (tag.href.indexOf('http://') === 0) {
+                tag.href = '/nikkei/http/' + tag.href.substr(7);
+            }
             if (tag.href.indexOf('https://') === 0) {
-                tag.href = tag.href.substr(8);
+                tag.href = '/nikkei/https/' + tag.href.substr(8);
             }
         }
 
@@ -131,13 +148,6 @@ function to_url($body, $headers) {
     return $dom->saveHTML();
 }
 
-$debug = isset( $_REQUEST[ 'debug' ] ) && !empty( $_REQUEST[ 'debug' ] ) ? $_REQUEST[ 'debug' ] : '0';
-$scheme = isset( $_REQUEST[ 'scheme' ] ) && !empty( $_REQUEST[ 'scheme' ] ) ? $_REQUEST[ 'scheme' ] : 'https';
-$path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'www.baidu.com';
-// $debug = '1';
-// $scheme = 'https';
-// $path = 'dash.cloudflare.com';
-$url = $scheme."://".$path;
 $ch = curl_init();
 
 curl_setopt($ch, CURLOPT_URL, $url);  
@@ -204,6 +214,8 @@ $page_info = array(
     "scheme" => $scheme,
     "path" => $path,
     "url" => $url,
+    "url_parse" => $url_parse,
+    "base_url" => $base_url,
     "http_code" => $http_code,
     "http_error" => $http_error,
     "header_size" => $header_size,
