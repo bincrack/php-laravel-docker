@@ -1,5 +1,11 @@
 <?php
-$headers_ignore = array('host', 'connection', 'x-forwarded-for', 'true-client-ip', 'cf-connecting-ip', 'accept-encoding');
+$headers_ignore = array(
+    'host', 'connection', 'x-forwarded-for', 'true-client-ip', 
+    'cf-worker', 
+    'cf-connecting-ip', 
+    'cf-ipcountry', 
+    'accept-encoding'
+);
 $headers_req = array();
 $headers_def_req = array(
     'user-agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',  
@@ -141,15 +147,16 @@ function to_url($body, $headers) {
     }
     $head = $dom->getElementsByTagName('head');
     if ($head->length) {
-        $child = null;
+        $element = $dom->createElement('script'); 
+        $element->nodeValue = $hook_script;
+        
         $script = $dom->getElementsByTagName('script');
         if ($script->length) {
             $child = $script->item(0);
+            $head->item(0)->insertBefore($element, $child);
+        } else {
+            $head->item(0)->appendChild($element);
         }
-        $element = $dom->createElement('script'); 
-        $element->nodeValue = $hook_script;
-
-        $head->item(0)->insertBefore($element, $child);
     }
 
     return $dom->saveHTML();
@@ -171,6 +178,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_req);
 
 $response = curl_exec($ch);
 $http_error = '';
+$http_exception = null;
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 if (curl_errno($ch)) {
@@ -206,7 +214,11 @@ if (curl_errno($ch)) {
         }
     }
     if ($http_code == 200 || $http_code == 400 || $http_code == 403) {
-        echo to_url($body, $headers_res);
+        try {
+            echo to_url($body, $headers_res);
+        } catch (Exception $e) {
+            $http_exception = $e->getMessage();
+        }
     } elseif ($http_code == 301 || $http_code == 302) {
         $debug = '1';
         echo sprintf("<div class='center'>跳转地址: <a href='%s'>%s</a></div>", $redirect, $redirect);
@@ -226,6 +238,7 @@ $page_info = array(
     "http_code" => $http_code,
     "http_error" => $http_error,
     "header_size" => $header_size,
+    "http_exception" => $http_exception,
     "link_urls" => $link_urls
 );
 if ($debug == '1') {
