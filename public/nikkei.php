@@ -94,7 +94,7 @@ function to_url($body, $headers) {
     }
 
     list($type, $subType) = explode(';', $content_type);
-    if ($type == 'text/css' || $type == 'image/png' || $type == 'text/javascript') {
+    if ($type != 'text/html') {
         return $body;
     }
 
@@ -160,6 +160,7 @@ if (curl_errno($ch)) {
     $body = substr($response, $header_size);  
     $headers_str = substr($response, 0, $header_size);  
     $redirect = '';
+    /*
     foreach (explode("\n", $headers_str) as $key => $value) {
         $value = trim($value);
         if ($key <= 0 || empty($value)) {
@@ -190,6 +191,7 @@ if (curl_errno($ch)) {
     } else {
         echo sprintf("<div class='center'>请求失败, 响应码: %s</div>", $http_code);
     }
+    */
 }
 $page_info = array(
     "headers_req" => $headers_req,
