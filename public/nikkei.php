@@ -34,8 +34,9 @@ function to_tag($tag, $tag_name) {
     } elseif (strpos($tag_val, '//') === 0) {
         $tag->setAttribute($tag_name, ''.substr($tag_val, 2));
     } elseif (strpos($tag_val, '/') === 0) {
+        $tag->setAttribute($tag_name, ''.substr($tag_val, 1));
     }
-    array_push($link_urls, array($tag->getAttribute($tag_name), $tag_val));
+    array_push($link_urls, array($tag->nodeName, $tag->getAttribute($tag_name), $tag_val));
 }
 $hook_script = <<<EOT
 function function_hook(func, obj, arg) {
@@ -152,11 +153,15 @@ curl_setopt($ch, CURLOPT_TIMEOUT, 10); // 设置超时时间
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers_req);
 
 $response = curl_exec($ch);
+$http_error = '';
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 if (curl_errno($ch)) {
-    echo sprintf("<div class='center'>请求失败: %s</div>", curl_error($ch));
+    $debug = '1';
+    $http_error = curl_error($ch);
+    http_response_code($http_code);
 } else {
-    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $http_error = 'OK';
     $body = substr($response, $header_size);  
     $headers_str = substr($response, 0, $header_size);  
     $redirect = '';
@@ -184,11 +189,13 @@ if (curl_errno($ch)) {
         }
     }
     if ($http_code == 200 || $http_code == 400 || $http_code == 403) {
-        echo to_url($body, $headers_res);
+        // echo to_url($body, $headers_res);
     } elseif ($http_code == 301 || $http_code == 302) {
+        $debug = '1';
         echo sprintf("<div class='center'>跳转地址: <a href='%s'>%s</a></div>", $redirect, $redirect);
     } else {
-        echo sprintf("<div class='center'>请求失败, 响应码: %s</div>", $http_code);
+        $debug = '1';
+        http_response_code($http_code);
     }
 }
 $page_info = array(
@@ -197,8 +204,10 @@ $page_info = array(
     "scheme" => $scheme,
     "path" => $path,
     "url" => $url,
-    "link_urls" => $link_urls,
-    "http_code" => $http_code
+    "http_code" => $http_code,
+    "http_error" => $http_error,
+    "header_size" => $header_size,
+    "link_urls" => $link_urls
 );
 if ($debug == '1') {
 ?>
