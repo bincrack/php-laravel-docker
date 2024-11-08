@@ -149,10 +149,22 @@ function function_hook_body() {
 }
 
 function function_hook_ajax() {
+    var scheme = "$scheme";
+    var base_url = "$base_url";
     var tmp = window.XMLHttpRequest.prototype.open;
     window.XMLHttpRequest.prototype.open = function() {
+        var url = arguments[1];
+        if (url.indexOf('http://') === 0) {
+            arguments[1] = '/nikkei/http/' + url.substr(7);
+        } else if (url.indexOf('https://') === 0) {
+            arguments[1] = '/nikkei/https/' + url.substr(8);
+        } else if (url.indexOf('//') === 0) {
+            arguments[1] = '/nikkei/' + scheme + '/' + url.substr(2);
+        } else if (url.indexOf('/') === 0) {
+            arguments[1] = '/nikkei/' + scheme + '/' + base_url + '/' + url.substr(1);
+        }
         console.log('Request', arguments);
-        // tmp.apply(this, arguments);
+        return tmp.apply(this, arguments);
     }
 
     console.info("%c function_hook_ajax success", 'color:red')
