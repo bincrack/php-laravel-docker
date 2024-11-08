@@ -55,20 +55,26 @@ function function_hook(func, obj, arg) {
     var tag = arg[0];
     if (typeof tag === 'object') {
         if (tag.tagName === 'SCRIPT') {
-            url = tag.src;
-            if (tag.src.indexOf('http://') === 0) {
-                tag.src = '/nikkei/http/' + tag.src.substr(7);
-            }
-            if (tag.src.indexOf('https://') === 0) {
-                tag.src = '/nikkei/https/' + tag.src.substr(8);
+            url = tag.attributes.src.value;
+            if (url.indexOf('http://') === 0) {
+                tag.src = '/nikkei/http/' + url.substr(7);
+            } else if (url.indexOf('https://') === 0) {
+                tag.src = '/nikkei/https/' + url.substr(8);
+            } else if (url.indexOf('//') === 0) {
+                tag.src = '/nikkei/' + scheme + '/' + url.substr(2);
+            } else if (url.indexOf('/') === 0) {
+                tag.src = '/nikkei/' + scheme + '/' + base_url + '/' + url.substr(1);
             }
         } else if (tag.tagName === 'LINK') {
-            url = tag.href;
-            if (tag.href.indexOf('http://') === 0) {
-                tag.href = '/nikkei/http/' + tag.href.substr(7);
-            }
-            if (tag.href.indexOf('https://') === 0) {
-                tag.href = '/nikkei/https/' + tag.href.substr(8);
+            url = tag.attributes.href.value;
+            if (url.indexOf('http://') === 0) {
+                tag.href = '/nikkei/http/' + url.substr(7);
+            } else if (url.indexOf('https://') === 0) {
+                tag.href = '/nikkei/https/' + url.substr(8);
+            } else if (url.indexOf('//') === 0) {
+                tag.href = '/nikkei/' + scheme + '/' + url.substr(2);
+            } else if (url.indexOf('/') === 0) {
+                tag.href = '/nikkei/' + scheme + '/' + base_url + '/' + url.substr(1);
             }
         }
 
@@ -126,6 +132,7 @@ function to_url($body, $headers) {
     $links = $dom->getElementsByTagName('img');
     foreach ($links as $tag) {
         to_tag($tag, 'src');
+        to_tag($tag, 'data-url');
     }
 
     $links = $dom->getElementsByTagName('script');
