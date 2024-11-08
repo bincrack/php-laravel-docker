@@ -54,7 +54,7 @@ $url = $scheme."://".$path;
 $url_parse = parse_url($url);
 $base_url = $url_parse['host'].(empty($url_parse['port']) ? "" : ":".$url_parse['port']);
 $hook_script = <<<EOT
-function function_hook(func, obj, arg) {
+function function_hook(source, func, obj, arg) {
     var scheme = "$scheme";
     var base_url = "$base_url";
     var url = null;
@@ -85,10 +85,10 @@ function function_hook(func, obj, arg) {
         }
 
         if (url) {
-            console.log('hook', func.name, url);
+            console.log(source, func.name, url);
         }
     }
-    func.apply(obj, arg);
+    return func.apply(obj, arg);
 }
 
 var function_hook_retry = [];
@@ -109,12 +109,12 @@ function function_hook_head() {
 
     var func1 = tag.insertBefore;
     tag.insertBefore = function() {
-        function_hook(func1, this, arguments);
+        return function_hook('function_hook_head', func1, this, arguments);
     }
 
     var func2 = tag.appendChild;
     tag.appendChild = function() {
-        function_hook(func2, this, arguments);
+        return function_hook('function_hook_head', func2, this, arguments);
     }
 
     console.info("%c function_hook_head success", 'color:red')
@@ -137,12 +137,12 @@ function function_hook_body() {
 
     var func1 = tag.insertBefore;
     tag.insertBefore = function() {
-        function_hook(func1, this, arguments);
+        return function_hook('function_hook_body', func1, this, arguments);
     }
 
     var func2 = tag.appendChild;
     tag.appendChild = function() {
-        function_hook(func2, this, arguments);
+        return function_hook('function_hook_body', func2, this, arguments);
     }
 
     console.info("%c function_hook_body success", 'color:red')
@@ -154,12 +154,17 @@ function function_hook_ajax() {
         console.log('Request', arguments);
         // tmp.apply(this, arguments);
     }
+
+    console.info("%c function_hook_ajax success", 'color:red')
 }
 
-function_hook_body();
-function_hook_head();
-function_hook_ajax();
-window.onload = () => function_hook_retry.forEach((func) => func.apply(this));
+document.addEventListener('DOMContentLoaded', function (event) {
+    console.log('%c function_hook', 'color:red');
+    function_hook_body();
+    function_hook_head();
+    function_hook_ajax();
+    window.onload = () => function_hook_retry.forEach((func) => func.apply(this));
+});
 // debugger;
 EOT;
 function to_url($body, $headers) {
