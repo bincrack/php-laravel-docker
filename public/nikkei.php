@@ -135,8 +135,8 @@ function function_hook_body() {
         return;
     }
 
-    var func1 = tag.appendChild;
-    tag.appendChild = function() {
+    var func1 = tag.insertBefore;
+    tag.insertBefore = function() {
         function_hook(func1, this, arguments);
     }
 
