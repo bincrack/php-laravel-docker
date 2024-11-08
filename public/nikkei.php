@@ -189,7 +189,7 @@ if (curl_errno($ch)) {
         }
     }
     if ($http_code == 200 || $http_code == 400 || $http_code == 403) {
-        // echo to_url($body, $headers_res);
+        echo to_url($body, $headers_res);
     } elseif ($http_code == 301 || $http_code == 302) {
         $debug = '1';
         echo sprintf("<div class='center'>跳转地址: <a href='%s'>%s</a></div>", $redirect, $redirect);
