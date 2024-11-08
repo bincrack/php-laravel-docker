@@ -90,20 +90,64 @@ function function_hook(func, obj, arg) {
     }
     func.apply(obj, arg);
 }
-function function_hook_head_insert() {
-    var h = document.getElementsByTagName("head");
-    var tmp = h[0].insertBefore;
-    h[0].insertBefore = function() {
-        function_hook(tmp, this, arguments);
+
+var function_hook_retry = [];
+function function_hook_head() {
+    var tag = document.head;
+    if (!tag) {
+        var h = document.getElementsByTagName("head");
+        if (h.length > 0) {
+            tag = h[0];
+        }
     }
-}
-function function_hook_head_append() {
-    var h = document.getElementsByTagName("head");
-    var tmp = h[0].appendChild;
-    h[0].appendChild = function() {
-        function_hook(tmp, this, arguments);
+    
+    if (!tag) {
+        console.error("function_hook_head fail")
+        function_hook_retry.push(function_hook_head);
+        return;
     }
+
+    var func1 = tag.insertBefore;
+    tag.insertBefore = function() {
+        function_hook(func1, this, arguments);
+    }
+
+    var func2 = tag.appendChild;
+    tag.appendChild = function() {
+        function_hook(func2, this, arguments);
+    }
+
+    console.info("%c function_hook_head success", 'color:red')
 }
+
+function function_hook_body() {
+    var tag = document.body;
+    if (!tag) {
+        var h = document.getElementsByTagName("body");
+        if (h.length > 0) {
+            tag = h[0];
+        }
+    }
+    
+    if (!tag) {
+        console.error("function_hook_body fail")
+        function_hook_retry.push(function_hook_body);
+        return;
+    }
+
+    var func1 = tag.appendChild;
+    tag.appendChild = function() {
+        function_hook(func1, this, arguments);
+    }
+
+    var func2 = tag.appendChild;
+    tag.appendChild = function() {
+        function_hook(func2, this, arguments);
+    }
+
+    console.info("%c function_hook_body success", 'color:red')
+}
+
 function function_hook_ajax() {
     var tmp = window.XMLHttpRequest.prototype.open;
     window.XMLHttpRequest.prototype.open = function() {
@@ -111,9 +155,11 @@ function function_hook_ajax() {
         // tmp.apply(this, arguments);
     }
 }
-function_hook_head_insert();
-function_hook_head_append();
+
+function_hook_body();
+function_hook_head();
 function_hook_ajax();
+window.onload = () => function_hook_retry.forEach((func) => func.apply(this));
 // debugger;
 EOT;
 function to_url($body, $headers) {
@@ -217,6 +263,7 @@ if (curl_errno($ch)) {
         try {
             echo to_url($body, $headers_res);
         } catch (Exception $e) {
+            $debug = '1';
             $http_exception = $e->getMessage();
         }
     } elseif ($http_code == 301 || $http_code == 302) {
