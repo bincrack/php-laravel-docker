@@ -194,6 +194,10 @@ function to_url($body, $headers) {
 
     $dom = new DOMDocument();
     $dom->loadHTML($body);
+    $links = $dom->getElementsByTagName('a');
+    foreach ($links as $tag) {
+        to_tag($tag, 'href');
+    }
     $links = $dom->getElementsByTagName('link');
     foreach ($links as $tag) {
         to_tag($tag, 'href');
