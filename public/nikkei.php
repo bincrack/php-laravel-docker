@@ -45,14 +45,15 @@ function to_tag($tag, $tag_name) {
 }
 
 $debug = isset( $_REQUEST[ 'debug' ] ) && !empty( $_REQUEST[ 'debug' ] ) ? $_REQUEST[ 'debug' ] : '0';
-$scheme = isset( $_REQUEST[ 'scheme' ] ) && !empty( $_REQUEST[ 'scheme' ] ) ? $_REQUEST[ 'scheme' ] : 'https';
-$path = isset( $_REQUEST[ 'path' ] ) && !empty( $_REQUEST[ 'path' ] ) ? $_REQUEST[ 'path' ] : 'www.baidu.com';
+$uri = $_SERVER['REQUEST_URI'];
+list($start, $service, $scheme, $domain) = explode('/', $uri);
+list($start, $path) = explode($domain, $uri);
 // $debug = '1';
 // $scheme = 'https';
 // $path = 'dash.cloudflare.com';
-$url = $scheme."://".$path;
+$url = $scheme."://".$domain.$path;
 $url_parse = parse_url($url);
-$base_url = $url_parse['host'].(empty($url_parse['port']) ? "" : ":".$url_parse['port']);
+$base_url = $domain;
 $hook_script = <<<EOT
 function function_hook(source, func, obj, arg) {
     var scheme = "$scheme";
@@ -292,13 +293,15 @@ if (curl_errno($ch)) {
     }
 }
 $page_info = array(
+    "uri" => $uri,
+    "service" => $service,
     "headers_req" => $headers_req,
     "headers_res" => $headers_res,
     "scheme" => $scheme,
+    "domain" => $domain,
     "path" => $path,
     "url" => $url,
     "url_parse" => $url_parse,
-    "base_url" => $base_url,
     "http_code" => $http_code,
     "http_error" => $http_error,
     "header_size" => $header_size,
