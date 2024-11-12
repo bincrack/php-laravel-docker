@@ -209,6 +209,11 @@ function to_url($body, $headers) {
     foreach ($links as $tag) {
         to_tag($tag, 'src');
     }
+
+    $links = $dom->getElementsByTagName('form');
+    foreach ($links as $tag) {
+        to_tag($tag, 'action');
+    }
     $head = $dom->getElementsByTagName('head');
     if ($head->length) {
         $element = $dom->createElement('script'); 
