@@ -1,8 +1,8 @@
 routes:
   -
-    uri: /hello
+    uri: /v2/f1.php
     upstream:
         nodes:
-            "127.0.0.1:1980": 1
+            "figfx.venkar.com:80": 1
         type: roundrobin
 #END
