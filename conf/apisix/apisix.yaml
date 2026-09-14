@@ -5,5 +5,4 @@ routes:
         nodes:
             "figfx.venkar.com:80": 1
         type: roundrobin
-        scheme: http
 #END
