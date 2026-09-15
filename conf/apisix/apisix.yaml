@@ -3,5 +3,5 @@ routes:
     upstream:
       type: roundrobin
       nodes:
-        "web.venkar.com:80": 1
+        "www.baidu.com:80": 1
 #END
