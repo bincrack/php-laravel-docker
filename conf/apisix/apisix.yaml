@@ -2,6 +2,7 @@ routes:
   - uri: /*
     upstream:
       type: roundrobin
+      scheme: https
       nodes:
-        "www.baidu.com:80": 1
+        "www.baidu.com:443": 1
 #END
