@@ -2,10 +2,10 @@ routes:
   - uri: /*
     plugins:
       proxy-rewrite:
-        host: "www.baidu.com"   # 强制把 Host 头改写为这个
+        host: "www.venkar.com"   # 强制把 Host 头改写为这个
     upstream:
       type: roundrobin
       scheme: https
       nodes:
-        "www.baidu.com:443": 1
+        "web.venkar.com:443": 1
 #END
