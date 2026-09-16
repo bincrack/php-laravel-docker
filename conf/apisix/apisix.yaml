@@ -2,7 +2,7 @@ routes:
   - uri: /*
     plugins:
       proxy-rewrite:
-        host: "www.venkar.com"   # 强制把 Host 头改写为这个
+        host: "web.venkar.com"   # 强制把 Host 头改写为这个
     upstream:
       type: roundrobin
       scheme: https
